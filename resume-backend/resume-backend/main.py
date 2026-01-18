@@ -33,9 +33,9 @@ except:
 app = FastAPI(title="SkillLens API", version="2.1.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # This allows all websites to connect
+    allow_origins=["*"],  # This is the important part!
     allow_credentials=True,
-    allow_methods=["*"],  # This allows all types of requests (POST, GET, etc.)
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
