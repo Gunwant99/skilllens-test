@@ -3,7 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 // 🔗 CONFIG: Point to your FastAPI Backend
-export const API_URL = "https://your-render-url.onrender.com";
+export const API_URL = "https://skilllens-test.onrender.com";
 
 interface AuthContextType {
   user: User | null;
