@@ -239,42 +239,27 @@ class AuthService:
     @staticmethod
     async def signup(data: UserSignup):
         try:
-            res = supabase.auth.sign_up({"email": data.email, "password": data.password})
+            # Force check connection
+            client = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+            res = client.auth.sign_up({"email": data.email, "password": data.password})
             if res.user:
-                supabase.table("users").insert({
+                client.table("users").insert({
                     "id": res.user.id, "email": data.email, "full_name": data.full_name,
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
             return {"user": res.user, "session": res.session}
         except Exception as e:
-            return {"error": str(e)} # Soft fail
+            return {"error": str(e)}
 
     @staticmethod
     async def login(data: UserLogin):
-        res = supabase.auth.sign_in_with_password({"email": data.email, "password": data.password})
-        return {"user": res.user, "session": res.session}
-
-    @staticmethod
-    async def logout(token: str):
-        supabase.auth.sign_out()
-        return {"message": "Logged out"}
-
-    @staticmethod
-    async def get_profile(user_id: str):
         try:
-            user_res = supabase.table("users").select("*").eq("id", user_id).execute()
-            user = user_res.data[0] if user_res.data else {"id": user_id, "email": "Unknown", "full_name": "User"}
-            
-            score_res = supabase.table("readiness_scores").select("*").eq("user_id", user_id).execute()
-            score_data = score_res.data[0] if score_res.data else None
-
-            return {
-                **user,
-                "score": score_data.get("score") if score_data else 0,
-                "skills_count": score_data.get("skills_count") if score_data else 0,
-            }
-        except:
-            return {"id": user_id, "email": "error", "full_name": "Error fetching profile"}
+            # Force check connection
+            client = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+            res = client.auth.sign_in_with_password({"email": data.email, "password": data.password})
+            return {"user": res.user, "session": res.session}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Database connection error: {str(e)}")
 
 class ResumeService:
     @staticmethod
