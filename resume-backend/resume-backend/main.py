@@ -16,17 +16,21 @@ import PyPDF2
 from supabase import create_client, Client
 
 # ================= ENV =================
+# ================= ENV =================
 load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+def get_supabase() -> Client:
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_KEY")
+    if not url or not key:
+        raise HTTPException(status_code=500, detail="Supabase credentials missing on server")
+    return create_client(url, key)
 
-if not SUPABASE_URL or not SUPABASE_KEY:
-    print("⚠️ WARNING: SUPABASE_URL or SUPABASE_KEY not found. Check your .env or Render Environment Variables.")
-
+# Initialize it once
 try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL else None
-except:
+    supabase: Client = get_supabase()
+except Exception as e:
+    print(f"Initial connection failed: {e}")
     supabase = None
 
 # ================= APP =================
